@@ -30,7 +30,7 @@
 }
 
 -(IBAction)addPreapprovalToken:(id)sender{
-    [self.authatureClient startGetTokenForPreApproval];
+    [self.authatureClient startAuthatureFlowForPreapproval];
 }
 
 -(void) setupClient{
@@ -45,8 +45,8 @@
 }
 
 -(void) loadTokens{
-    [AuthatureAccessTokenStorage destroyAccessTokenForClientId:self.authatureClient.settings.clientId
-                                                        andKey:@"token_(null)"];
+    /*[AuthatureAccessTokenStorage destroyAccessTokenForClientId:self.authatureClient.settings.clientId
+                                                        andKey:@"(null)"];*/
     self.tokens = [AuthatureAccessTokenStorage allAccessTokensForClientId:self.authatureClient.settings.clientId];
 }
 #pragma mark authature delegate

@@ -26,15 +26,15 @@
 }
 
 - (IBAction)capture:(id)sender {
-    [[self client] startGetTokenForSignatureCapture];
+    [[self client] startAuthatureFlowForSignatureCapture];
 }
 
 - (IBAction)authenticate:(id)sender {
-    [[self client] startGetTokenForAuthentication];
+    [[self client] startAuthatureFlowForAuthentication];
 }
 
 - (IBAction)preApprove:(id)sender {
-    [[self client] startGetTokenForPreApproval];
+    [[self client] startAuthatureFlowForPreapproval];
 }
 
 - (AuthatureClient*) client{
