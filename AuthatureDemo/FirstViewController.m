@@ -8,6 +8,7 @@
 
 #import "FirstViewController.h"
 #import "AuthatureClient.h"
+#import "UIImageView+Authature.h"
 
 @interface FirstViewController ()<AuthatureDelegate>
 @property(strong, nonatomic) AuthatureClient* authatureClient;
@@ -17,7 +18,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(36, 36), NO, 0.0);
+    UIImage *blank = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    [self.preapproveBankLogo useAsAuthatureBankLogos];
+
 }
 
 - (void)didReceiveMemoryWarning {

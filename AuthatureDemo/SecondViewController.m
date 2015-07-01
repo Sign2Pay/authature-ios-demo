@@ -9,6 +9,7 @@
 #import <AuthatureClient/AuthatureClient.h>
 #import "SecondViewController.h"
 #import "AuthatureAccessTokenStorage.h"
+#import "UIImageView+Authature.h"
 
 @interface SecondViewController ()<AuthatureDelegate>
 @property(strong, nonatomic) AuthatureClient *authatureClient;
@@ -100,7 +101,7 @@
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:identifier];
 
     if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     }
 
     NSDictionary *token = [self.tokens objectAtIndex:index];
@@ -114,6 +115,8 @@
                                                            token[@"account"][@"bank"][@"bank_name"],
                                                            token[@"account"][@"masked_iban"]
     ];
+
+    [cell.imageView useAsAuthatureBankLogos];
     cell.editing = YES;
     return cell;
 }
