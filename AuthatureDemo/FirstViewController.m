@@ -41,10 +41,16 @@
     AuthatureClientSettings *settings = [[AuthatureClientSettings alloc]
             initWithClientId:@"7a69e92d4d7dc6b9a407c1ce75e24cc9"
                  callbackUrl:@"http://authature.com/oauth/native/callback/7a69e92d4d7dc6b9a407c1ce75e24cc9"];
-    AuthatureUserParams *userParams = [[AuthatureUserParams  alloc]init];
-    userParams.identifier = self.emailAddressField.text;
-    userParams.firstName = self.firstNameAddressField.text;
-    userParams.lastName = self.lastNameAddressField.text;
+    AuthatureUserParams *userParams = nil;
+    if(self.emailAddressField.text.length > 0 ||
+            self.firstNameAddressField.text.length > 0 ||
+            self.lastNameAddressField.text.length > 0){
+        userParams = [[AuthatureUserParams  alloc]init];
+        userParams.identifier = self.emailAddressField.text;
+        userParams.firstName = self.firstNameAddressField.text;
+        userParams.lastName = self.lastNameAddressField.text;
+    }
+
     self.authatureClient = [[AuthatureClient alloc] initWithSettings:settings
                                                           userParams:userParams
                                                           andDelegate:self];
@@ -57,4 +63,44 @@
     return self;
 }
 
+- (void)authatureAccessTokenReceived:(NSDictionary *)accessToken {
+    if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_SIGNATURE_CAPTURE]){
+        NSString * text = [NSString stringWithFormat:@"Thank you %@ %@ (%@)",
+                                                     accessToken[@"user"][@"last_name"],
+                                                     accessToken[@"user"][@"first_name"],
+                                                     accessToken[@"user"][@"identifier"]
+        ];
+        [self alertMessage:text
+                  withTile:@"Your signature has been captured."];
+    }
+
+    if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_AUTHENTICATE]){
+        NSString * text = [NSString stringWithFormat:@"Welcome %@ %@ (%@)",
+                        accessToken[@"user"][@"last_name"],
+                        accessToken[@"user"][@"first_name"],
+                        accessToken[@"user"][@"identifier"]
+        ];
+        [self alertMessage:text
+                  withTile:@"Authentication was succesfull"];
+    }
+
+    if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_PRE_APPROVAL]){
+        NSString * text = [NSString stringWithFormat:@"Thank you %@ %@ (%@)",
+                                                                   accessToken[@"user"][@"last_name"],
+                                                                   accessToken[@"user"][@"first_name"],
+                                                                   accessToken[@"user"][@"identifier"]
+        ];
+        [self alertMessage:text
+                  withTile:@"Your payment has been preapproved"];
+    }
+}
+
+-(void) alertMessage:(NSString *)message withTile:(NSString*) title{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
+                                                    message:message
+                                                   delegate:self
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+    [alert show];
+}
 @end

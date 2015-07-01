@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface SecondViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 -(IBAction)addPreapprovalToken:(id)sender;
+
 @end
 
