@@ -100,13 +100,24 @@
                                      forScope:token[@"scopes"]
                                      callBack:^(BOOL valid, NSDictionary *response) {
                                          if(valid){
-                                             NSLog(@"Token is valid");
+                                             [self alertMessage:[NSString stringWithFormat:@"Token is Valid and can be used for %@", token[@"scopes"]]
+                                                       withTile:@"Valid"];
                                          }else{
-                                             NSLog(@"Token is not valid");
+                                             [self alertMessage:[NSString stringWithFormat:@"Token is NOT Valid and cannot be used for %@", token[@"scopes"]]
+                                                       withTile:@"Valid"];
                                          }
 
                                      } errorCallBack:^(NSError *error) {
-                                        NSLog(@"An error occured");
+                                        [self alertMessage:@"An error occured" withTile:@"Authature"];
             }];
+}
+
+-(void) alertMessage:(NSString *)message withTile:(NSString*) title{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
+                                                    message:message
+                                                   delegate:self
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+    [alert show];
 }
 @end
