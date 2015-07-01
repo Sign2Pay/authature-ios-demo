@@ -45,8 +45,6 @@
 }
 
 -(void) loadTokens{
-    /*[AuthatureAccessTokenStorage destroyAccessTokenForClientId:self.authatureClient.settings.clientId
-                                                        andKey:@"(null)"];*/
     self.tokens = [AuthatureAccessTokenStorage allAccessTokensForClientId:self.authatureClient.settings.clientId];
 }
 #pragma mark authature delegate
