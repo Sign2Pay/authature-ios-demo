@@ -20,7 +20,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self initAuthatureClient];
 
     [self.defaultBankLogo useAsAuthatureBankLogos];
     [self.nlBankLogo useAsAuthatureBankLogosForCountryCode:@"NL"];
@@ -37,7 +36,7 @@
 }
 
 -(void) updateViews{
-    NSDictionary *tokenForCheckout = [self.authatureClient getStoredTokenForScope:AUTHATURE_SCOPE_PRE_APPROVAL];
+    NSDictionary *tokenForCheckout = [[self getAuthatureClient] getStoredTokenForScope:AUTHATURE_SCOPE_PRE_APPROVAL];
     if(tokenForCheckout){
         [self.currentAccountLabel setHidden:NO];
         self.currentAccountLabel.text = [NSString stringWithFormat:@"BANK: %@\nIBAN: %@",
@@ -57,35 +56,23 @@
 }
 
 - (IBAction)authenticate:(id)sender {
-    [self.authatureClient startAuthatureFlowForAuthentication];
+    [[self getAuthatureClient] startAuthatureFlowForAuthenticationWithSuccess:^(NSDictionary *dictionary) {
+        [self authatureAccessTokenReceived:dictionary];
+    } andFailure:^(NSString *code, NSString *description) {
+        [self alertMessage:description withTitle:code];
+    }];
 }
 
 - (IBAction)checkout:(id)sender {
     [self ensureTokenAndCheckout];
 }
 
-- (void)ensureTokenAndCheckout {
-    [self.authatureClient verifyStoredTokenValidityforScope:AUTHATURE_SCOPE_PRE_APPROVAL
-                                                   callBack:^(BOOL tokenIsValid, NSDictionary *responseObject) {
-                                                       if(tokenIsValid){
-                                                           //The token is still valid
-                                                           //Start actual payment process here
-                                                           [self checkout];
-                                                       }else{
-                                                           //time to reapprove
-                                                           [self.authatureClient startAuthatureFlowForPreapproval];
-                                                       }
-                                                   } errorCallBack:^(NSError *error) {
-                [self alertMessage:@"An error occured" withTitle:@"Checkout"];
-            }];
-}
-
 - (IBAction)unlinkCurrentAccount:(id)sender {
-    [self.authatureClient destroyStoredTokenForScope:AUTHATURE_SCOPE_PRE_APPROVAL];
+    [[self getAuthatureClient] destroyStoredTokenForScope:AUTHATURE_SCOPE_PRE_APPROVAL];
     [self updateViews];
 }
 
-- (void) initAuthatureClient{
+- (AuthatureClient *) getAuthatureClient{
     AuthatureClientSettings *settings = [[AuthatureClientSettings alloc]
             initWithClientId:@"7a69e92d4d7dc6b9a407c1ce75e24cc9"
                  callbackUrl:@"http://authature.com/oauth/native/callback/7a69e92d4d7dc6b9a407c1ce75e24cc9"];
@@ -104,11 +91,40 @@
                                                           andDelegate:self];
     //Let the client store the tokens per scope
     self.authatureClient.automaticTokenStorageEnabled = YES;
+
+    return self.authatureClient;
+}
+
+- (void)ensureTokenAndCheckout {
+    [[self getAuthatureClient] verifyStoredTokenValidityforScope:AUTHATURE_SCOPE_PRE_APPROVAL
+               callBack:^(BOOL tokenIsValid, NSDictionary *responseObject) {
+                   if(tokenIsValid){
+                       //The token is still valid
+                       //Start actual payment process here
+                       [self checkout];
+                   }else{
+                       //First get a token, then checkout
+                       [self getPreapprovalTokenAndCheckout];
+                   }
+               } errorCallBack:^(NSError *error) {
+                [self alertMessage:@"An error occured" withTitle:@"Checkout"];
+            }];
+}
+
+- (void)getPreapprovalTokenAndCheckout {
+    [[self getAuthatureClient] startAuthatureFlowForPreapprovalWithSuccess:^(NSDictionary *dictionary) {
+        [self updateViews]; // new checkout token available
+        [self checkout];
+    } andFailure:^(NSString *code, NSString *description) {
+        [self alertMessage:description withTitle:code];
+    }];
 }
 
 -(void) checkout{
+    //Actual checkout process should start here
     [self alertMessage:@"Your payment was accepted" withTitle:@"Thank you"];
 }
+
 #pragma mark Authature delegate
 -(UIViewController *)controllerForAuthatureWebView {
     return self;
@@ -125,10 +141,6 @@
         ];
         [self alertMessage:text
                   withTitle:@"Authentication was succesfull"];
-    }
-
-    if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_PRE_APPROVAL]){
-        [self checkout];
     }
 }
 

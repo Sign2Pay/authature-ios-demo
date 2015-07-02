@@ -62,6 +62,7 @@
     [self loadTokens];
     [self.tableView reloadData];
 }
+
 #pragma mark UITableViewDataSource and delegate
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
@@ -84,6 +85,63 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     return @"Add as many accounts as you want";
 }
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return indexPath.row < self.tokens.count;
+}
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if(indexPath.row < self.tokens.count){
+        return UITableViewCellEditingStyleDelete;
+    }
+    return UITableViewCellEditingStyleNone;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if(editingStyle == UITableViewCellEditingStyleDelete){
+        NSDictionary *token = [self.tokens objectAtIndex:indexPath.row];
+        //check if this token is stored as one of the automatic tokens of FirstView
+        NSDictionary *tokenForSameScope = [self.authatureClient getStoredTokenForScope:token[@"scopes"]]; //get the stored token for the same scope
+        if(tokenForSameScope != NULL &&
+                [((NSString *) tokenForSameScope[@"scopes"]) isEqualToString:token[@"scopes"]]) {
+            [self.authatureClient destroyStoredTokenForScope:token[@"scopes"]];
+        }else
+        {
+            [AuthatureAccessTokenStorage destroyAccessTokenForClientId:self.authatureClient.settings.clientId
+                                                                andKey:token[@"token"]];
+        }
+
+        [self loadTokens];
+        [self.tableView reloadData];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if(indexPath.row == self.tokens.count){
+        [self.authatureClient startAuthatureFlowForPreapprovalWithSuccess:^(NSDictionary *dictionary) {
+            [self authatureAccessTokenReceived:dictionary];
+        } andFailure:^(NSString *code, NSString *description) {
+            [self alertMessage:description withTitle:code];
+        }];
+    }else{
+        NSDictionary *token = [self.tokens objectAtIndex:indexPath.row];
+        [self.authatureClient verifyTokenValidity:token
+                                         forScope:token[@"scopes"]
+                                         callBack:^(BOOL valid, NSDictionary *response) {
+                                             if(valid){
+                                                 [self alertMessage:[NSString stringWithFormat:@"Token is Valid and can be used for %@", token[@"scopes"]]
+                                                          withTitle:@"Valid"];
+                                             }else{
+                                                 [self alertMessage:[NSString stringWithFormat:@"Token is NOT Valid and cannot be used for %@", token[@"scopes"]]
+                                                          withTitle:@"Valid"];
+                                             }
+
+                                         } errorCallBack:^(NSError *error) {
+                    [self alertMessage:@"An error occured" withTitle:@"Authature"];
+                }];
+    }
+}
+
 
 - (UITableViewCell *)createAddTokenButtonCell {
     NSString *identifier = @"authature_add_button_cell";
@@ -120,58 +178,7 @@
     cell.editing = YES;
     return cell;
 }
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return indexPath.row < self.tokens.count;
-}
 
-- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(indexPath.row < self.tokens.count){
-        return UITableViewCellEditingStyleDelete;
-    }
-    return UITableViewCellEditingStyleNone;
-}
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(editingStyle == UITableViewCellEditingStyleDelete){
-        NSDictionary *token = [self.tokens objectAtIndex:indexPath.row];
-        //check if this token is stored as one of the automatic tokens of FirstView
-        NSDictionary *tokenForSameScope = [self.authatureClient getStoredTokenForScope:token[@"scopes"]]; //get the stored token for the same scope
-        if(tokenForSameScope != NULL &&
-                [((NSString *) tokenForSameScope[@"scopes"]) isEqualToString:token[@"scopes"]]) {
-            [self.authatureClient destroyStoredTokenForScope:token[@"scopes"]];
-        }else
-        {
-            [AuthatureAccessTokenStorage destroyAccessTokenForClientId:self.authatureClient.settings.clientId
-                                                                andKey:token[@"token"]];
-        }
-
-        [self loadTokens];
-        [self.tableView reloadData];
-    }
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(indexPath.row == self.tokens.count){
-        [self.authatureClient startAuthatureFlowForPreapproval];
-    }else{
-        NSDictionary *token = [self.tokens objectAtIndex:indexPath.row];
-        [self.authatureClient verifyTokenValidity:token
-                                         forScope:token[@"scopes"]
-                                         callBack:^(BOOL valid, NSDictionary *response) {
-                                             if(valid){
-                                                 [self alertMessage:[NSString stringWithFormat:@"Token is Valid and can be used for %@", token[@"scopes"]]
-                                                           withTitle:@"Valid"];
-                                             }else{
-                                                 [self alertMessage:[NSString stringWithFormat:@"Token is NOT Valid and cannot be used for %@", token[@"scopes"]]
-                                                           withTitle:@"Valid"];
-                                             }
-
-                                         } errorCallBack:^(NSError *error) {
-                    [self alertMessage:@"An error occured" withTitle:@"Authature"];
-                }];
-    }
-
-}
 
 -(void) alertMessage:(NSString *)message withTitle:(NSString*) title{
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
