@@ -9,6 +9,7 @@
 #import "FirstViewController.h"
 #import "AuthatureClient.h"
 #import "UIImageView+Authature.h"
+#import "UIButton+Authature.h"
 
 @interface FirstViewController ()<AuthatureDelegate>
 @property(strong, nonatomic) AuthatureClient* authatureClient;
@@ -24,7 +25,8 @@
     UIGraphicsEndImageContext();
 
     [self.preapproveBankLogo useAsAuthatureBankLogos];
-
+    [self.preapproveLogoButton setTitle:@"" forState:UIControlStateNormal];
+    [self.preapproveLogoButton useAuthatureBankLogos];
 }
 
 - (void)didReceiveMemoryWarning {

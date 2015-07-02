@@ -15,7 +15,7 @@
 @property(strong, nonatomic) IBOutlet UITextField *lastNameAddressField;
 
 @property(strong, nonatomic) IBOutlet UIImageView *preapproveBankLogo;
-@property(strong, nonatomic) IBOutlet UIButton *preapproveButton;
+@property(strong, nonatomic) IBOutlet UIButton *preapproveLogoButton;
 
 -(IBAction)capture:(id)sender;
 -(IBAction)authenticate:(id)sender;
