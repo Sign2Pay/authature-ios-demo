@@ -13,6 +13,7 @@
 
 @interface FirstViewController ()<AuthatureDelegate>
 @property(strong, nonatomic) AuthatureClient* authatureClient;
+@property(strong, nonatomic) NSDictionary *currentUserToken;
 @end
 
 @implementation FirstViewController
@@ -47,6 +48,12 @@
         [self.checkoutLogoButton useAuthatureBankLogos];
         [self.currentAccountLabel setHidden:YES];
     }
+
+    if(self.currentUserToken){
+        self.emailAddressField.text = self.currentUserToken[@"user"][@"identifier"];
+        self.firstNameField.text = self.currentUserToken[@"user"][@"first_name"];
+        self.lastNameField.text = self.currentUserToken[@"user"][@"last_name"];
+    }
 }
 
 - (IBAction)authenticate:(id)sender {
@@ -59,7 +66,7 @@
 
 - (void)ensureTokenAndCheckout {
     [self.authatureClient verifyStoredTokenValidityforScope:AUTHATURE_SCOPE_PRE_APPROVAL
-                                                   callBack:^(BOOL tokenIsValid, NSDictionary *dictionary) {
+                                                   callBack:^(BOOL tokenIsValid, NSDictionary *responseObject) {
                                                        if(tokenIsValid){
                                                            //The token is still valid
                                                            //Start actual payment process here
@@ -84,12 +91,12 @@
                  callbackUrl:@"http://authature.com/oauth/native/callback/7a69e92d4d7dc6b9a407c1ce75e24cc9"];
     AuthatureUserParams *userParams = nil;
     if(self.emailAddressField.text.length > 0 ||
-            self.firstNameAddressField.text.length > 0 ||
-            self.lastNameAddressField.text.length > 0){
+            self.firstNameField.text.length > 0 ||
+            self.lastNameField.text.length > 0){
         userParams = [[AuthatureUserParams  alloc]init];
         userParams.identifier = self.emailAddressField.text;
-        userParams.firstName = self.firstNameAddressField.text;
-        userParams.lastName = self.lastNameAddressField.text;
+        userParams.firstName = self.firstNameField.text;
+        userParams.lastName = self.lastNameField.text;
     }
 
     self.authatureClient = [[AuthatureClient alloc] initWithSettings:settings
@@ -108,8 +115,9 @@
 }
 
 - (void)authatureAccessTokenReceived:(NSDictionary *)accessToken {
-    [self updateViews];
-        if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_AUTHENTICATE]){
+    if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_AUTHENTICATE]){
+        self.currentUserToken = accessToken;
+        [self updateViews];
         NSString * text = [NSString stringWithFormat:@"Welcome %@ %@ (%@)",
                         accessToken[@"user"][@"last_name"],
                         accessToken[@"user"][@"first_name"],

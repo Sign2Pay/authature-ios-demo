@@ -11,8 +11,8 @@
 @interface FirstViewController : UIViewController
 
 @property(strong, nonatomic) IBOutlet UITextField *emailAddressField;
-@property(strong, nonatomic) IBOutlet UITextField *firstNameAddressField;
-@property(strong, nonatomic) IBOutlet UITextField *lastNameAddressField;
+@property(strong, nonatomic) IBOutlet UITextField *firstNameField;
+@property(strong, nonatomic) IBOutlet UITextField *lastNameField;
 
 @property(strong, nonatomic) IBOutlet UIImageView *defaultBankLogo;
 @property(strong, nonatomic) IBOutlet UIImageView *nlBankLogo;

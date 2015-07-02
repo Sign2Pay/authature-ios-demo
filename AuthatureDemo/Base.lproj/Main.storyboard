@@ -94,8 +94,8 @@ IBAN: 1234 21341</string>
                         <outlet property="currentAccountLabel" destination="QJ6-Ls-rEG" id="8gO-8T-tx7"/>
                         <outlet property="defaultBankLogo" destination="m7f-Ts-FFh" id="8Ob-WD-vsw"/>
                         <outlet property="emailAddressField" destination="kUO-if-XFL" id="25t-zV-hFy"/>
-                        <outlet property="firstNameAddressField" destination="Sfb-cS-W1U" id="gZM-7a-WAr"/>
-                        <outlet property="lastNameAddressField" destination="WJT-Ee-rUt" id="OfE-Md-tvw"/>
+                        <outlet property="firstNameField" destination="Sfb-cS-W1U" id="8YM-dI-x8i"/>
+                        <outlet property="lastNameField" destination="WJT-Ee-rUt" id="DDr-MP-t2h"/>
                         <outlet property="nlBankLogo" destination="x7N-g6-fi3" id="G9O-a1-8LN"/>
                     </connections>
                 </viewController>
