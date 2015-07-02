@@ -16,11 +16,12 @@
 
 @property(strong, nonatomic) IBOutlet UIImageView *preapproveBankLogo;
 @property(strong, nonatomic) IBOutlet UIButton *preapproveLogoButton;
+@property(strong, nonatomic) IBOutlet UILabel *currentAccountLabel;
 
--(IBAction)capture:(id)sender;
+
 -(IBAction)authenticate:(id)sender;
--(IBAction)preApprove:(id)sender;
-
+-(IBAction)checkout:(id)sender;
+-(IBAction)unlinkCurrentAccount:(id)sender;
 
 @end
 

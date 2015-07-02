@@ -116,7 +116,7 @@
                                                            token[@"account"][@"masked_iban"]
     ];
 
-    [cell.imageView useAsAuthatureBankLogos];
+    [cell.imageView useAsAuthatureBankLogosWithToken:token];
     cell.editing = YES;
     return cell;
 }

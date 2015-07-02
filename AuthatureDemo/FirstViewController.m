@@ -20,13 +20,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(36, 36), NO, 0.0);
-    UIImage *blank = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
+    [self initAuthatureClient];
 
     [self.preapproveBankLogo useAsAuthatureBankLogos];
     [self.preapproveLogoButton setTitle:@"" forState:UIControlStateNormal];
     [self.preapproveLogoButton useAuthatureBankLogos];
+
+    [self updateViews];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -34,19 +34,50 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)capture:(id)sender {
-    [[self client] startAuthatureFlowForSignatureCapture];
+-(void) updateViews{
+    NSDictionary *tokenForCheckout = [self.authatureClient getStoredTokenForScope:AUTHATURE_SCOPE_PRE_APPROVAL];
+    if(tokenForCheckout){
+        [self.currentAccountLabel setHidden:NO];
+        self.currentAccountLabel.text = [NSString stringWithFormat:@"BANK: %@\nIBAN: %@",
+                tokenForCheckout[@"account"][@"bank"][@"bank_name"],
+                        tokenForCheckout[@"account"][@"masked_iban"]];
+        [self.preapproveLogoButton useAuthatureBankLogosWithToken:tokenForCheckout];
+    }else{
+        [self.preapproveLogoButton useAuthatureBankLogos];
+        [self.currentAccountLabel setHidden:YES];
+    }
 }
 
 - (IBAction)authenticate:(id)sender {
-    [[self client] startAuthatureFlowForAuthentication];
+    [self.authatureClient startAuthatureFlowForAuthentication];
 }
 
-- (IBAction)preApprove:(id)sender {
-    [[self client] startAuthatureFlowForPreapproval];
+- (IBAction)checkout:(id)sender {
+    [self ensureTokenAndCheckout];
 }
 
-- (AuthatureClient*) client{
+- (void)ensureTokenAndCheckout {
+    [self.authatureClient verifyStoredTokenValidityforScope:AUTHATURE_SCOPE_PRE_APPROVAL
+                                                   callBack:^(BOOL tokenIsValid, NSDictionary *dictionary) {
+                                                       if(tokenIsValid){
+                                                           //The token is still valid
+                                                           //Start actual payment process here
+                                                           [self checkout];
+                                                       }else{
+                                                           //time to reapprove
+                                                           [self.authatureClient startAuthatureFlowForPreapproval];
+                                                       }
+                                                   } errorCallBack:^(NSError *error) {
+                [self alertMessage:@"An error occured" withTitle:@"Checkout"];
+            }];
+}
+
+- (IBAction)unlinkCurrentAccount:(id)sender {
+    [self.authatureClient destroyStoredTokenForScope:AUTHATURE_SCOPE_PRE_APPROVAL];
+    [self updateViews];
+}
+
+- (void) initAuthatureClient{
     AuthatureClientSettings *settings = [[AuthatureClientSettings alloc]
             initWithClientId:@"7a69e92d4d7dc6b9a407c1ce75e24cc9"
                  callbackUrl:@"http://authature.com/oauth/native/callback/7a69e92d4d7dc6b9a407c1ce75e24cc9"];
@@ -63,48 +94,36 @@
     self.authatureClient = [[AuthatureClient alloc] initWithSettings:settings
                                                           userParams:userParams
                                                           andDelegate:self];
+    //Let the client store the tokens per scope
     self.authatureClient.automaticTokenStorageEnabled = YES;
-    return self.authatureClient;
 }
 
+-(void) checkout{
+    [self alertMessage:@"Your payment was accepted" withTitle:@"Thank you"];
+}
 #pragma mark Authature delegate
 -(UIViewController *)controllerForAuthatureWebView {
     return self;
 }
 
 - (void)authatureAccessTokenReceived:(NSDictionary *)accessToken {
-    if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_SIGNATURE_CAPTURE]){
-        NSString * text = [NSString stringWithFormat:@"Thank you %@ %@ (%@)",
-                                                     accessToken[@"user"][@"last_name"],
-                                                     accessToken[@"user"][@"first_name"],
-                                                     accessToken[@"user"][@"identifier"]
-        ];
-        [self alertMessage:text
-                  withTile:@"Your signature has been captured."];
-    }
-
-    if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_AUTHENTICATE]){
+    [self updateViews];
+        if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_AUTHENTICATE]){
         NSString * text = [NSString stringWithFormat:@"Welcome %@ %@ (%@)",
                         accessToken[@"user"][@"last_name"],
                         accessToken[@"user"][@"first_name"],
                         accessToken[@"user"][@"identifier"]
         ];
         [self alertMessage:text
-                  withTile:@"Authentication was succesfull"];
+                  withTitle:@"Authentication was succesfull"];
     }
 
     if([((NSString *) accessToken[@"scopes"]) isEqualToString:AUTHATURE_SCOPE_PRE_APPROVAL]){
-        NSString * text = [NSString stringWithFormat:@"Thank you %@ %@ (%@)",
-                                                                   accessToken[@"user"][@"last_name"],
-                                                                   accessToken[@"user"][@"first_name"],
-                                                                   accessToken[@"user"][@"identifier"]
-        ];
-        [self alertMessage:text
-                  withTile:@"Your payment has been preapproved"];
+        [self checkout];
     }
 }
 
--(void) alertMessage:(NSString *)message withTile:(NSString*) title{
+-(void) alertMessage:(NSString *)message withTitle:(NSString*) title{
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
                                                     message:message
                                                    delegate:self
