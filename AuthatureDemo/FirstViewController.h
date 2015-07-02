@@ -14,8 +14,9 @@
 @property(strong, nonatomic) IBOutlet UITextField *firstNameAddressField;
 @property(strong, nonatomic) IBOutlet UITextField *lastNameAddressField;
 
-@property(strong, nonatomic) IBOutlet UIImageView *preapproveBankLogo;
-@property(strong, nonatomic) IBOutlet UIButton *preapproveLogoButton;
+@property(strong, nonatomic) IBOutlet UIImageView *defaultBankLogo;
+@property(strong, nonatomic) IBOutlet UIImageView *nlBankLogo;
+@property(strong, nonatomic) IBOutlet UIButton *checkoutLogoButton;
 @property(strong, nonatomic) IBOutlet UILabel *currentAccountLabel;
 
 

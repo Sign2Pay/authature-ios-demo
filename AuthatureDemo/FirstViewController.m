@@ -19,12 +19,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
     [self initAuthatureClient];
 
-    [self.preapproveBankLogo useAsAuthatureBankLogos];
-    [self.preapproveLogoButton setTitle:@"" forState:UIControlStateNormal];
-    [self.preapproveLogoButton useAuthatureBankLogos];
+    [self.defaultBankLogo useAsAuthatureBankLogos];
+    [self.nlBankLogo useAsAuthatureBankLogosForCountryCode:@"NL"];
+
+    [self.checkoutLogoButton setTitle:@"" forState:UIControlStateNormal];
+    [self.checkoutLogoButton useAuthatureBankLogos];
 
     [self updateViews];
 }
@@ -41,9 +42,9 @@
         self.currentAccountLabel.text = [NSString stringWithFormat:@"BANK: %@\nIBAN: %@",
                 tokenForCheckout[@"account"][@"bank"][@"bank_name"],
                         tokenForCheckout[@"account"][@"masked_iban"]];
-        [self.preapproveLogoButton useAuthatureBankLogosWithToken:tokenForCheckout];
+        [self.checkoutLogoButton useAuthatureBankLogosWithToken:tokenForCheckout];
     }else{
-        [self.preapproveLogoButton useAuthatureBankLogos];
+        [self.checkoutLogoButton useAuthatureBankLogos];
         [self.currentAccountLabel setHidden:YES];
     }
 }
