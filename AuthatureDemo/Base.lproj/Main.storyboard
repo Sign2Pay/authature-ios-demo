@@ -97,6 +97,7 @@ IBAN: 1234 21341</string>
                         <outlet property="firstNameField" destination="Sfb-cS-W1U" id="8YM-dI-x8i"/>
                         <outlet property="lastNameField" destination="WJT-Ee-rUt" id="DDr-MP-t2h"/>
                         <outlet property="nlBankLogo" destination="x7N-g6-fi3" id="G9O-a1-8LN"/>
+                        <outlet property="removeStoredCheckoutTokenButton" destination="Gf6-c3-xxe" id="2ND-ph-eRm"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>

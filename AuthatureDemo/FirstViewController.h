@@ -17,6 +17,7 @@
 @property(strong, nonatomic) IBOutlet UIImageView *defaultBankLogo;
 @property(strong, nonatomic) IBOutlet UIImageView *nlBankLogo;
 @property(strong, nonatomic) IBOutlet UIButton *checkoutLogoButton;
+@property(strong, nonatomic) IBOutlet UIButton *removeStoredCheckoutTokenButton;
 @property(strong, nonatomic) IBOutlet UILabel *currentAccountLabel;
 
 

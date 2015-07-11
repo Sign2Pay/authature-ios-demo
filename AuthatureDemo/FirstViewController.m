@@ -10,10 +10,12 @@
 #import "AuthatureClient.h"
 #import "UIImageView+Authature.h"
 #import "UIButton+Authature.h"
+#import "MBProgressHUD.h"
 
 @interface FirstViewController ()<AuthatureDelegate>
 @property(strong, nonatomic) AuthatureClient* authatureClient;
 @property(strong, nonatomic) NSDictionary *currentUserToken;
+@property(strong, nonatomic) MBProgressHUD *hud;
 @end
 
 @implementation FirstViewController
@@ -43,9 +45,12 @@
                 tokenForCheckout[@"account"][@"bank"][@"bank_name"],
                         tokenForCheckout[@"account"][@"masked_iban"]];
         [self.checkoutLogoButton useAuthatureBankLogosWithToken:tokenForCheckout];
+        self.removeStoredCheckoutTokenButton.hidden = NO;
+
     }else{
         [self.checkoutLogoButton useAuthatureBankLogos];
         [self.currentAccountLabel setHidden:YES];
+        self.removeStoredCheckoutTokenButton.hidden = YES;
     }
 
     if(self.currentUserToken){
@@ -57,8 +62,10 @@
 
 - (IBAction)authenticate:(id)sender {
     [[self getAuthatureClient] startAuthatureFlowForAuthenticationWithSuccess:^(NSDictionary *dictionary) {
+        [self hideHud];
         [self authatureAccessTokenReceived:dictionary];
     } andFailure:^(NSString *code, NSString *description) {
+        [self hideHud];
         [self alertMessage:description withTitle:code];
     }];
 }
@@ -113,9 +120,11 @@
 
 - (void)getPreapprovalTokenAndCheckout {
     [[self getAuthatureClient] startAuthatureFlowForPreapprovalWithSuccess:^(NSDictionary *dictionary) {
+        [self hideHud];
         [self updateViews]; // new checkout token available
         [self checkout];
     } andFailure:^(NSString *code, NSString *description) {
+        [self hideHud];
         [self alertMessage:description withTitle:code];
     }];
 }
@@ -125,6 +134,9 @@
     [self alertMessage:@"Your payment was accepted" withTitle:@"Thank you"];
 }
 
+-(void) hideHud{
+    [self.hud hide:YES];
+}
 #pragma mark Authature delegate
 -(UIViewController *)controllerForAuthatureWebView {
     return self;
@@ -142,6 +154,11 @@
         [self alertMessage:text
                   withTitle:@"Authentication was succesfull"];
     }
+}
+
+- (void) authatureWebViewGotDismissed{
+    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    [self.hud setLabelText:@"Fetching token"];
 }
 
 -(void) alertMessage:(NSString *)message withTitle:(NSString*) title{
