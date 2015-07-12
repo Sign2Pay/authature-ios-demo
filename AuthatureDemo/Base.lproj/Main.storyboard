@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
-        <!--First-->
+        <!--Simple-->
         <scene sceneID="hNz-n2-bh7">
             <objects>
                 <viewController id="9pv-A4-QxB" customClass="FirstViewController" sceneMemberID="viewController">
@@ -88,7 +88,7 @@ IBAN: 1234 21341</string>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="First" image="first" id="acW-dT-cKf"/>
+                    <tabBarItem key="tabBarItem" title="Simple" image="first" id="acW-dT-cKf"/>
                     <connections>
                         <outlet property="checkoutLogoButton" destination="KiV-hb-nFu" id="Z0K-f5-njN"/>
                         <outlet property="currentAccountLabel" destination="QJ6-Ls-rEG" id="8gO-8T-tx7"/>
@@ -104,7 +104,7 @@ IBAN: 1234 21341</string>
             </objects>
             <point key="canvasLocation" x="750" y="-320"/>
         </scene>
-        <!--Second-->
+        <!--Token List-->
         <scene sceneID="wg7-f3-ORb">
             <objects>
                 <viewController id="8rJ-Kc-sve" customClass="SecondViewController" sceneMemberID="viewController">
@@ -130,12 +130,13 @@ IBAN: 1234 21341</string>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="H2c-v5-A33" secondAttribute="trailing" id="LRq-Rg-d5d"/>
-                            <constraint firstItem="H2c-v5-A33" firstAttribute="bottom" secondItem="Djb-ko-YwX" secondAttribute="top" id="Mkp-iT-hnN"/>
-                            <constraint firstItem="H2c-v5-A33" firstAttribute="leading" secondItem="QS5-Rx-YEW" secondAttribute="leading" id="tnZ-b8-I0g"/>
+                            <constraint firstAttribute="trailing" secondItem="H2c-v5-A33" secondAttribute="trailing" id="Oot-1j-xDy"/>
+                            <constraint firstItem="H2c-v5-A33" firstAttribute="leading" secondItem="QS5-Rx-YEW" secondAttribute="leading" id="ZQd-m7-IpK"/>
+                            <constraint firstItem="H2c-v5-A33" firstAttribute="top" secondItem="QS5-Rx-YEW" secondAttribute="top" constant="82" id="bKV-Kk-4N2"/>
+                            <constraint firstItem="H2c-v5-A33" firstAttribute="top" relation="greaterThanOrEqual" secondItem="QS5-Rx-YEW" secondAttribute="top" constant="82" id="ld6-U2-tg5"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Second" image="second" id="cPa-gy-q4n"/>
+                    <tabBarItem key="tabBarItem" title="Token List" image="second" id="cPa-gy-q4n"/>
                     <connections>
                         <outlet property="tableView" destination="H2c-v5-A33" id="BYv-fy-xyp"/>
                     </connections>

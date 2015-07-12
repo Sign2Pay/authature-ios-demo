@@ -158,7 +158,6 @@
 
 - (void) authatureWebViewGotDismissed{
     self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    [self.hud setLabelText:@"Fetching token"];
 }
 
 -(void) alertMessage:(NSString *)message withTitle:(NSString*) title{

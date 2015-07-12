@@ -123,8 +123,8 @@
             [self authatureAccessTokenReceived:dictionary];
             [self.hud hide:YES];
         } andFailure:^(NSString *code, NSString *description) {
-            [self alertMessage:description withTitle:code];
             [self.hud hide:YES];
+            [self alertMessage:description withTitle:code];
         }];
     }else{
         NSDictionary *token = [self.tokens objectAtIndex:indexPath.row];
@@ -193,6 +193,5 @@
 }
 - (void)authatureWebViewGotDismissed {
     self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    [self.hud setLabelText:@"Fetching token"];
 }
 @end
