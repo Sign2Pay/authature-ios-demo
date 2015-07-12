@@ -10,11 +10,12 @@
 #import "SecondViewController.h"
 #import "AuthatureAccessTokenStorage.h"
 #import "UIImageView+Authature.h"
+#import "MBProgressHUD.h"
 
 @interface SecondViewController ()<AuthatureDelegate>
 @property(strong, nonatomic) AuthatureClient *authatureClient;
 @property(strong, nonatomic) NSArray *tokens;
-@property(nonatomic) BOOL isEditing;
+@property(strong, nonatomic) MBProgressHUD *hud;
 @end
 
 @implementation SecondViewController
@@ -120,8 +121,10 @@
     if(indexPath.row == self.tokens.count){
         [self.authatureClient startAuthatureFlowForPreapprovalWithSuccess:^(NSDictionary *dictionary) {
             [self authatureAccessTokenReceived:dictionary];
+            [self.hud hide:YES];
         } andFailure:^(NSString *code, NSString *description) {
             [self alertMessage:description withTitle:code];
+            [self.hud hide:YES];
         }];
     }else{
         NSDictionary *token = [self.tokens objectAtIndex:indexPath.row];
@@ -187,5 +190,9 @@
                                           cancelButtonTitle:@"OK"
                                           otherButtonTitles:nil];
     [alert show];
+}
+- (void)authatureWebViewGotDismissed {
+    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    [self.hud setLabelText:@"Fetching token"];
 }
 @end
