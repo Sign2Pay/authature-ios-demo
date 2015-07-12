@@ -42,7 +42,6 @@
                  callbackUrl:@"http://authature.com/oauth/native/callback/7a69e92d4d7dc6b9a407c1ce75e24cc9"];
 
     self.authatureClient = [[AuthatureClient alloc] initWithSettings:settings
-                                                          userParams:nil
                                                          andDelegate:self];
     self.authatureClient.automaticTokenStorageEnabled = false; // don't store the tokens automatically
 }
@@ -119,13 +118,17 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if(indexPath.row == self.tokens.count){
-        [self.authatureClient startAuthatureFlowForPreapprovalWithSuccess:^(NSDictionary *dictionary) {
-            [self authatureAccessTokenReceived:dictionary];
-            [self.hud hide:YES];
-        } andFailure:^(NSString *code, NSString *description) {
-            [self.hud hide:YES];
-            [self alertMessage:description withTitle:code];
-        }];
+        [self.authatureClient
+                startAuthatureFlowForPreapprovalWithUserParams:nil
+                                                       success:^(NSDictionary *dictionary) {
+                                                            [self authatureAccessTokenReceived:dictionary];
+                                                            [self.hud hide:YES];
+                                                        }
+                                                    andFailure:^(NSString *code, NSString *description) {
+                                                        [self.hud hide:YES];
+                                                        [self alertMessage:description withTitle:code];
+                                                    }
+        ];
     }else{
         NSDictionary *token = [self.tokens objectAtIndex:indexPath.row];
         [self.authatureClient verifyTokenValidity:token

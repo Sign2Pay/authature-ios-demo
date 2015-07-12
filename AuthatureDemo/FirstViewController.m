@@ -61,13 +61,17 @@
 }
 
 - (IBAction)authenticate:(id)sender {
-    [[self getAuthatureClient] startAuthatureFlowForAuthenticationWithSuccess:^(NSDictionary *dictionary) {
-        [self hideHud];
-        [self authatureAccessTokenReceived:dictionary];
-    } andFailure:^(NSString *code, NSString *description) {
-        [self hideHud];
-        [self alertMessage:description withTitle:code];
-    }];
+    [[self getAuthatureClient]
+            startAuthatureFlowForAuthenticationWithUserParams:[self userParams]
+                                                      success:^(NSDictionary *dictionary) {
+                                                        [self hideHud];
+                                                        [self authatureAccessTokenReceived:dictionary];
+                                                    }
+                                                   andFailure:^(NSString *code, NSString *description) {
+                                                        [self hideHud];
+                                                        [self alertMessage:description withTitle:code];
+                                                    }
+    ];
 }
 
 - (IBAction)checkout:(id)sender {
@@ -83,18 +87,9 @@
     AuthatureClientSettings *settings = [[AuthatureClientSettings alloc]
             initWithClientId:@"7a69e92d4d7dc6b9a407c1ce75e24cc9"
                  callbackUrl:@"http://authature.com/oauth/native/callback/7a69e92d4d7dc6b9a407c1ce75e24cc9"];
-    AuthatureUserParams *userParams = nil;
-    if(self.emailAddressField.text.length > 0 ||
-            self.firstNameField.text.length > 0 ||
-            self.lastNameField.text.length > 0){
-        userParams = [[AuthatureUserParams  alloc]init];
-        userParams.identifier = self.emailAddressField.text;
-        userParams.firstName = self.firstNameField.text;
-        userParams.lastName = self.lastNameField.text;
-    }
+
 
     self.authatureClient = [[AuthatureClient alloc] initWithSettings:settings
-                                                          userParams:userParams
                                                           andDelegate:self];
     //Let the client store the tokens per scope
     self.authatureClient.automaticTokenStorageEnabled = YES;
@@ -119,14 +114,19 @@
 }
 
 - (void)getPreapprovalTokenAndCheckout {
-    [[self getAuthatureClient] startAuthatureFlowForPreapprovalWithSuccess:^(NSDictionary *dictionary) {
-        [self hideHud];
-        [self updateViews]; // new checkout token available
-        [self checkout];
-    } andFailure:^(NSString *code, NSString *description) {
-        [self hideHud];
-        [self alertMessage:description withTitle:code];
-    }];
+
+    [[self getAuthatureClient]
+            startAuthatureFlowForPreapprovalWithUserParams: [self userParams]
+                                                   success:^(NSDictionary *dictionary) {
+                                                    [self hideHud];
+                                                    [self updateViews]; // new checkout token available
+                                                    [self checkout];
+                                                }
+                                                andFailure:^(NSString *code, NSString *description) {
+                                                    [self hideHud];
+                                                    [self alertMessage:description withTitle:code];
+                                                }
+];
 }
 
 -(void) checkout{
@@ -136,6 +136,19 @@
 
 -(void) hideHud{
     [self.hud hide:YES];
+}
+
+-(AuthatureUserParams *)userParams{
+    AuthatureUserParams *userParams = nil;
+    if(self.emailAddressField.text.length > 0 ||
+            self.firstNameField.text.length > 0 ||
+            self.lastNameField.text.length > 0){
+        userParams = [[AuthatureUserParams  alloc]init];
+        userParams.identifier = self.emailAddressField.text;
+        userParams.firstName = self.firstNameField.text;
+        userParams.lastName = self.lastNameField.text;
+    }
+    return userParams;
 }
 #pragma mark Authature delegate
 -(UIViewController *)controllerForAuthatureWebView {
