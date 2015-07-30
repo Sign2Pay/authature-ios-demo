@@ -151,8 +151,19 @@
     return userParams;
 }
 #pragma mark Authature delegate
+
+
 -(UIViewController *)controllerForAuthatureWebView {
     return self;
+}
+
+-(void)authatureWebViewLoadStarted{
+    [self hideHud];
+    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+}
+
+- (void)authatureWebViewReady{
+    [self hideHud];
 }
 
 - (void)authatureAccessTokenReceived:(NSDictionary *)accessToken {
@@ -170,6 +181,7 @@
 }
 
 - (void) authatureWebViewGotDismissed{
+    [self hideHud];
     self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
 }
 

@@ -54,6 +54,15 @@
     return self;
 }
 
+-(void)authatureWebViewLoadStarted{
+    [self.hud hide:YES];
+    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+}
+
+- (void)authatureWebViewReady{
+    [self.hud hide:YES];
+}
+
 - (void)authatureAccessTokenReceived:(NSDictionary *)accessToken {
     NSString *token = accessToken[@"token"];
     [AuthatureAccessTokenStorage saveAccessToken:accessToken
@@ -195,6 +204,7 @@
     [alert show];
 }
 - (void)authatureWebViewGotDismissed {
+    [self.hud hide:YES];
     self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
 }
 @end
